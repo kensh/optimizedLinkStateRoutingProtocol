@@ -1,0 +1,79 @@
+-- Node情報を表すクラス
+class Node is subclass of CommonType
+
+values
+
+instance variables
+
+id : NodeID; -- Nodeの識別子
+N1 : set of NodeID;
+N2 : set of NodeID;
+MPR : set of NodeID;
+message : Message;
+
+operations
+
+-- コンストラクタ
+public Node : NodeID ==> Node
+Node(nid) ==
+-- TODO willing has to use here
+  atomic(
+    id := nid;
+    N1 := {};
+    N2 := {};
+    MPR := {};
+  );
+
+public pure getID : () ==> NodeID
+getID() ==
+  return id;
+
+public pure getN1 : () ==> set of NodeID
+getN1() == return N1;
+
+public setN1 : set of NodeID ==> ()
+setN1(n1) == (
+	N1 := n1;
+);
+
+public pure getN2 : () ==> set of NodeID
+getN2() == return N2;
+
+public setN2 : set of NodeID ==> ()
+setN2(n2) == (
+	N2 := n2;
+);
+
+public pure getMPR : () ==> set of NodeID
+getMPR() == return MPR;
+
+public setMPR : set of NodeID ==> ()
+setMPR(mpr) == (
+	MPR := mpr;
+);
+
+public pure getMessage : () ==> Message
+getMessage() == return message;
+
+public setMessage : Message ==> ()
+setMessage(m) == (
+	message := m;
+);
+
+
+
+-- 送り先NodeIDにMPRかどうかを告げ、メッセージを送る
+--public send : Node * IsMPR * Message ==> ()
+--send(node, isMPR, message) == (
+--	node.receive(isMPR, message);
+--);
+--
+--public receive : IsMPR * Message ==> ()
+--receive(isMPR, message) == (
+--  if message in set messages then return;
+--  messages := messages union {message};
+--  if isMPR then
+--  	for all i in set getN1() do send(node, isMPR, message);
+--);
+
+end Node

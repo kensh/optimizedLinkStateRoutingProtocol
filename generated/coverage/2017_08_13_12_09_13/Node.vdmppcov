@@ -1,0 +1,43 @@
+-- Node情報を表すクラス
+class Node is subclass of CommonType
+
+
+instance variables
+
+id : NodeID; -- Nodeの識別子
+N1 : set of NodeID;
+N2 : set of NodeID;
+MPR : set of NodeID;
+
+operations
+
+-- コンストラクタ
+public Node : NodeID ==> Node
+Node(nid) ==
+-- TODO willing has to use here
+  atomic(
+    id := nid;
+    N1 := {};
+    N2 := {};
+    MPR := {};
+  );
+
+public pure getID : () ==> NodeID
+getID() ==
+  return id;
+
+public pure getN1 : () ==> set of NodeID
+getN1() == return N1;
+
+public pure getN2 : () ==> set of NodeID
+getN2() == return N2;
+
+public pure getMPR : () ==> set of NodeID
+getMPR() == return MPR;
+
+-- 送り先NodeIDにMPRかどうかを告げ、メッセージを送る
+public send : NodeID * IsMPR * Message ==> Message
+send(nodeID, isMPR, message) == return message;
+
+
+end Node

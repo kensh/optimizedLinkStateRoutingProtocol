@@ -1,0 +1,67 @@
+class NodeManagerT01 is subclass of TestCase, CommonType, MyPrintTestListener
+
+instance variables
+
+man : NodeManager := new NodeManager();
+nodeIDs : set of NodeID := {};
+maxNodeID : NodeID := 20;
+
+
+operations 
+
+public NodeManagerT01 : () ==> NodeManagerT01
+NodeManagerT01() == TestCase("T01");
+
+public NodeManagerT01 : seq of char ==> NodeManagerT01
+NodeManagerT01(str) == TestCase(str);
+
+public setUp : () ==> ()
+setUp() == (
+    man := new NodeManager();
+		
+		for all i in set {1, ... , maxNodeID} do (
+    	nodeIDs := nodeIDs union {i};
+    	man.addNodeID(i);
+    	man.addNode(new Node(i));
+    );
+  
+  	for all i in set {1, ... , maxNodeID-2} do (
+    	man.addNeighbors(i, {i+1, ... , i+2});
+    );
+    man.addNeighbors(maxNodeID-1, {maxNodeID});
+    man.addNeighbors(maxNodeID, {});
+    
+    println("test");
+		for all i in set {1, ... , maxNodeID} do (
+    	print("Node");
+    	print(i);
+    	print("==");
+    	
+    	print("neighbor:");
+    	for all j in set man.getNeighbor(i) do (
+    		print(j);
+    		print(",");
+    	);
+    	
+    	println("");
+    	
+    );
+
+);
+
+public runTest : () ==> ()
+runTest() == 
+  (
+    dcl r : int;
+    
+    
+    assertTrue("check the reserved seats by U1",
+               man.getAllNodeIDs() = {1,2});     
+  );
+
+public tearDown : () ==> ()
+tearDown() == 
+  skip;
+
+
+end NodeManagerT01

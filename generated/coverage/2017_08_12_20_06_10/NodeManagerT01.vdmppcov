@@ -1,0 +1,74 @@
+class NodeManagerT01 is subclass of TestCase, CommonType, MyPrintTestListener
+
+instance variables
+
+man : NodeManager := new NodeManager();
+nodeIDs : set of NodeID := {};
+maxNodeID : NodeID := 15;
+layer : int := 5;
+
+
+operations 
+
+public NodeManagerT01 : () ==> NodeManagerT01
+NodeManagerT01() == TestCase("T01");
+
+public NodeManagerT01 : seq of char ==> NodeManagerT01
+NodeManagerT01(str) == TestCase(str);
+
+public setUp : () ==> ()
+setUp() == (
+    man := new NodeManager();
+		
+		for all i in set {0, ... , maxNodeID} do (
+    	nodeIDs := nodeIDs union {i};
+    	man.addNodeID(i);
+    	man.addNode(new Node(i));
+    );
+
+  	for all i in set {0, ... , maxNodeID} do (
+  		for all j in set {0, ... , MATH`rand(layer)} do (
+  		  dcl r : int := MATH`rand(maxNodeID + 1);
+        if not r = i then
+          man.addNeighbors(i, {r});
+  		);
+    );
+    
+    
+    println(", go!");
+		for all i in set {0, ... , maxNodeID} do (
+    	print("Node");
+    	print(i);
+    	print("==");
+    	
+    	print("neighbor:");
+    	for all j in set man.getNeighbor(i) do (
+    		print(j);
+    		print(",");
+    	);
+    	
+    	println("");
+    	
+    );
+
+);
+
+public runTest : () ==> ()
+runTest() == 
+  (
+  
+    dcl r : int := MATH`rand(5);
+    
+    for all i in set {1, ... , 100} do (
+    	println(MATH`rand(5));
+    );
+    assertTrue("check the reserved seats by U1",
+               man.getAllNodeIDs() = {1,2});     
+  );
+
+public tearDown : () ==> ()
+tearDown() == 
+  skip;
+
+
+end NodeManagerT01

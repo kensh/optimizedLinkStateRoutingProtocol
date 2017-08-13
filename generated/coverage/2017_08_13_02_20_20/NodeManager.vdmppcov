@@ -1,0 +1,87 @@
+-- Nodeの詳細すクラス
+class NodeManager is subclass of Environment
+
+
+instance variables
+
+-- Node情報を保持する写像
+nodes : map NodeID to Node := {|->};
+inv 
+  (forall id in set dom nodes & id = nodes(id).getID())
+    and
+  (forall n in set rng nodes & validNode(n))
+    and
+  (forall node1, node2 in set rng nodes & 
+    node1 <> node2 => consistentNodes(node1, node2));
+
+
+
+functions
+
+-- 二つのNodeが競合しないかのチェック
+public consistentNodes : Node * Node -> bool
+consistentNodes(node1, node2) ==
+  node1.getID() <> node2.getID();
+
+
+operations
+
+-- Node情報のチェック
+public pure validNode : Node ==> bool
+validNode(node) ==
+  return
+    node.getID() in set getAllNodeIDs();
+
+
+-- Node情報を追加する
+public addNode : Node ==> ()
+addNode(node) ==
+  atomic(
+    nodes := nodes munion {node.getID() |-> node};
+  )
+pre 
+  node.getID() not in set dom nodes
+    and
+  validNode(node)
+    and
+  forall n in set rng nodes & consistentNodes(node, n);
+
+
+-- Nodeの識別子からNode情報を取得する
+public pure getNode : NodeID ==> Node
+getNode(nodeID) ==
+  return nodes(nodeID)
+pre nodeID in set dom nodes;
+
+
+-- 登録されているすべてのイベントの識別子を取得する
+--public pure getAllNodeIDs : () ==> set of NodeID
+--getAllNodeIDs() ==
+--  return getAllNodeIDs();
+
+public pure getN1 : NodeID ==> set of NodeID
+getN1(nodeID) ==
+  return getNeighbor(nodeID);
+
+public pure getN2 : NodeID ==> set of NodeID
+getN2(nodeID) == (
+    dcl n1 : set of NodeID := getN1(nodeID);
+    dcl n2 : set of NodeID := {};
+    for all nid1 in set n1 do
+      n2 := n2 union { nid2 | nid2 in set getN1(nid1) & 
+      	not nid2 in set n1 and
+      	not nid2 = nodeID and
+      	not nodeID in set getN1(nid2)
+      	};
+    return n2
+  );
+  
+  
+public pure getD : NodeID ==> int
+getD(nodeID) == return card getN2(nodeID);
+
+
+public pure getMPR : NodeID ==> int
+getMPR(nodeID) == return card getN2(nodeID);
+
+end NodeManager
