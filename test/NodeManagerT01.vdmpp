@@ -58,8 +58,10 @@ runTest() ==
   (
 		dcl rootID : NodeID := 0;
 		dcl message : Message := mk_token("TEST");
-    man.send(rootID, true, message);
+		man.getNode(rootID).setMessage(message);
+    man.send(rootID, true);
     
+		println("--------------------------------------");
     for all i in set man.getAllNodeIDs() do (
       dcl node : Node := man.getNode(i);
       	print(i);
@@ -68,7 +70,8 @@ runTest() ==
       	println("");
 --	    assertTrue("check the received messge : ", node.getMessage() = message); 
     );
-       
+		println("--------------------------------------");
+    	
   );
 
 public tearDown : () ==> ()

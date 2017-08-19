@@ -58,7 +58,7 @@ runTest() ==
   (
 		dcl rootID : NodeID := 0;
 		dcl message : Message := mk_token("TEST");
-    man.send(rootID, true, message);
+    man.send(rootID, true);
     
     for all i in set man.getAllNodeIDs() do (
       dcl node : Node := man.getNode(i);

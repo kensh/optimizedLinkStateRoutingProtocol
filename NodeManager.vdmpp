@@ -194,23 +194,31 @@ calculateMPR() == (
     );
 );
 
-public send : NodeID * IsMPR * Message ==> ()
-send(nodeID, isMPR, message) == (
+public send : NodeID * IsMPR ==> ()
+send(nodeID, isMPR) == (
 	dcl currentNode : Node := getNode(nodeID);
 	
 	for all nextID in set currentNode.getN1() do (
 		dcl nextNode : Node := getNode(nextID);
 		
-		if message = nextNode.getMessage() then return;
-		
 		print(currentNode.getID());
-		print(" --> ");
-		print(nextNode.getID());
-		println("");
+		print("   ");
+		print(currentNode.getMessage());
 		
-		nextNode.setMessage(message);
-		if isMPR then
-			send(nextID, nextID in set currentNode.getMPR(), message);
+		if currentNode.getMessage() = nextNode.getMessage() then (
+			println("");
+		) else (
+		
+			print(" --> ");
+			print(nextID in set currentNode.getMPR());
+			print("   ");
+			print(nextNode.getID());
+			println("");
+		
+			nextNode.setMessage(currentNode.getMessage());
+			if isMPR then
+				send(nextID, nextID in set currentNode.getMPR());
+		);
 	);
 )
 pre 
