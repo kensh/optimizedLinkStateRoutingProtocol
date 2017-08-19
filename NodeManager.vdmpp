@@ -162,6 +162,12 @@ send(nodeID, isMPR, message) == (
 	currentNode.setMessage(message);
 	for all nextID in set currentNode.getN1() do (
 		dcl nextNode : Node := getNode(nextID);
+		
+		print(currentNode.getID());
+		print(" --> ");
+		print(nextNode.getID());
+		println("");
+		
 		if message = nextNode.getMessage() then return;
 		if isMPR then
 			send(nextID, nextID in set currentNode.getMPR(), message);
