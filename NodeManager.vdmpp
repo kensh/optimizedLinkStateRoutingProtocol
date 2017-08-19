@@ -191,9 +191,8 @@ calculateMPR() == (
       node.setN1(getN1(i));
       node.setN2(getN2(i));
       node.setMPR(getMPR(i));
-    
-      printAll(i, node);
     );
+    
 );
 
 -- ノード間送信
@@ -232,8 +231,8 @@ printSend(currentNode, nextNode) == (
 		println("");
 );
 
-public printAll : int * Node ==> ()
-printAll(i, node) == (
+public printNode : int * Node ==> ()
+printNode(i, node) == (
 			print("Node");
     	print(i);
     	println("->");
@@ -264,4 +263,16 @@ printAll(i, node) == (
     	println("");
 );
 
+public printAll : () ==> ()
+printAll() == (
+    for all i in set getAllNodeIDs() do (
+      dcl node : Node := getNode(i);
+      
+      node.setN1(getN1(i));
+      node.setN2(getN2(i));
+      node.setMPR(getMPR(i));
+    
+      printNode(i, node);
+    );
+);
 end NodeManager

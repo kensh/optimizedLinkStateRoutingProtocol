@@ -34,6 +34,8 @@ setUp() == (
     );
     
     println(", go!");
+    
+		println("------------------RAND-----------------");
 		for all i in set {0, ... , maxNodeID} do (
     	print("Node");
     	print(i);
@@ -50,7 +52,9 @@ setUp() == (
     );
 
     man.calculateMPR();
-
+    
+		println("------------------Nodes-----------------");
+		man.printAll();
 );
 
 public runTest : () ==> ()
@@ -59,6 +63,8 @@ runTest() ==
 		dcl rootID : NodeID := 0;
 		dcl message : Message := mk_token("TEST");
 		man.getNode(rootID).setMessage(message);
+		
+		println("------------------SEND-----------------");
     man.send(rootID, true);
     
 		println("------------------ALL-----------------");
