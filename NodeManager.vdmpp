@@ -162,6 +162,7 @@ post not nodeID in set RESULT
 	and RESULT subset dom nodes
 	and mpr subset RESULT;
 
+-- 最大連結ノードの割り出し
 public pure maxd : set of NodeID * set of NodeID ==> NodeID
 maxd(choices, uncovered) == (
 		dcl maxNid : NodeID;
@@ -181,6 +182,7 @@ pre
 post 
 	RESULT in set dom nodes;
 
+-- 全ノードのMPR計算
 public calculateMPR : () ==> ()
 calculateMPR() == (
     for all i in set getAllNodeIDs() do (
@@ -194,6 +196,7 @@ calculateMPR() == (
     );
 );
 
+-- ノード間送信
 public send : NodeID * IsMPR ==> ()
 send(nodeID, isMPR) == (
 	dcl currentNode : Node := getNode(nodeID);
@@ -201,28 +204,33 @@ send(nodeID, isMPR) == (
 	for all nextID in set currentNode.getN1() do (
 		dcl nextNode : Node := getNode(nextID);
 		
-		print(currentNode.getID());
-		print("   ");
-		print(currentNode.getMessage());
+		printSend(currentNode, nextNode);
 		
-		if currentNode.getMessage() = nextNode.getMessage() then (
-			println("");
-		) else (
+		nextNode.setMessage(currentNode.getMessage());
 		
-			print(" --> ");
-			print(nextID in set currentNode.getMPR());
-			print("   ");
-			print(nextNode.getID());
-			println("");
-		
-			nextNode.setMessage(currentNode.getMessage());
-			if isMPR then
+		if not nextNode.isReceived(nodeID) then (
+			
+			if isMPR then (
+				nextNode.setReceived(nodeID);
 				send(nextID, nextID in set currentNode.getMPR());
+			)
 		);
 	);
 )
 pre 
 	nodeID in set dom nodes;
+
+public printSend : Node * Node ==> ()
+printSend(currentNode, nextNode) == (
+		print(currentNode.getID());
+		print("   ");
+		print(currentNode.getMessage());
+		print(" --> ");
+		print(nextNode.getID() in set currentNode.getMPR());
+		print("   ");
+		print(nextNode.getID());
+		println("");
+);
 
 public printAll : int * Node ==> ()
 printAll(i, node) == (

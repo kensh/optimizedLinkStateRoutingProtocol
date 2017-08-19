@@ -10,6 +10,7 @@ N1 : set of NodeID;
 N2 : set of NodeID;
 MPR : set of NodeID;
 message : Message;
+received : set of NodeID;
 
 operations
 
@@ -22,6 +23,7 @@ Node(nid) ==
     N1 := {};
     N2 := {};
     MPR := {};
+    received := {};
     message := mk_token("");
   );
 
@@ -61,6 +63,12 @@ setMessage(m) == (
 	message := m;
 );
 
+public pure isReceived : NodeID ==> bool
+isReceived(nodeID) == return nodeID in set received;
 
+public setReceived : NodeID ==> ()
+setReceived(nodeID) == (
+	received := received union {nodeID};
+);
 
 end Node

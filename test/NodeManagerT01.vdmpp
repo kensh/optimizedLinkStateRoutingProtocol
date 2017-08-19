@@ -61,7 +61,7 @@ runTest() ==
 		man.getNode(rootID).setMessage(message);
     man.send(rootID, true);
     
-		println("--------------------------------------");
+		println("------------------ALL-----------------");
     for all i in set man.getAllNodeIDs() do (
       dcl node : Node := man.getNode(i);
       	print(i);
@@ -70,8 +70,15 @@ runTest() ==
       	println("");
 --	    assertTrue("check the received messge : ", node.getMessage() = message); 
     );
-		println("--------------------------------------");
-    	
+		println("------------------N2------------------");
+    for all i in set man.getN2(rootID) do (
+      dcl node : Node := man.getNode(i);
+      	print(i);
+      	print(" : ");
+      	print(node.getMessage());
+      	println("");
+    );
+	  assertTrue("check the received messge to N2 from sender : ", card { nid | nid in set man.getN2(rootID) & man.getNode(nid).getMessage() = message} = card man.getN2(rootID)); 
   );
 
 public tearDown : () ==> ()
