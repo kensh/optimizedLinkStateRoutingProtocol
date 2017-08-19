@@ -13,7 +13,7 @@ execute() == (
 
     
     
-    suite.addTest(new NodeManagerT01("case01 - no problem"));
+    suite.addTest(new NodeManagerT01("case01 - randomly creates nodes"));
 
     suite.run(result);
 );

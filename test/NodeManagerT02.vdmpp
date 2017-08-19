@@ -1,0 +1,79 @@
+class NodeManagerT02 is subclass of TestCase, CommonType, MyPrintTestListener
+
+instance variables
+
+man : NodeManager := new NodeManager();
+nodeIDs : set of NodeID := {};
+maxNodeID : NodeID := 10;
+layer : int := 10;
+
+
+operations 
+
+public NodeManagerT02 : () ==> NodeManagerT02
+NodeManagerT02() == TestCase("T01");
+
+public NodeManagerT02 : seq of char ==> NodeManagerT02
+NodeManagerT02(str) == TestCase(str);
+
+public setUp : () ==> ()
+setUp() == (
+		
+		for all i in set {0, ... , maxNodeID} do (
+    	nodeIDs := nodeIDs union {i};
+    	man.addNodeID(i);
+    	man.addNode(new Node(i));
+    );
+
+  	for all i in set {0, ... , maxNodeID} do (
+  		for all j in set {0, ... , MATH`rand(layer)} do (
+  		  dcl r : int := MATH`rand(maxNodeID + 1);
+        if not r = i then
+          man.addNeighbors(i, {r});
+  		);
+    );
+    
+    println(", go!");
+		for all i in set {0, ... , maxNodeID} do (
+    	print("Node");
+    	print(i);
+    	print("->");
+    	
+    	print("neighbor:");
+    	for all j in set man.getNeighbor(i) do (
+    		print(j);
+    		print(",");
+    	);
+    	
+    	println("");
+    	
+    );
+
+    man.calculateMPR();
+
+);
+
+public runTest : () ==> ()
+runTest() == 
+  (
+		dcl rootID : NodeID := 0;
+		dcl message : Message := mk_token("TEST");
+    man.send(rootID, true, message);
+    
+    for all i in set man.getAllNodeIDs() do (
+      dcl node : Node := man.getNode(i);
+      	print(i);
+      	print(" : ");
+      	print(node.getMessage());
+      	println("");
+--	    assertTrue("check the received messge : ", node.getMessage() = message); 
+    );
+       
+  );
+
+public tearDown : () ==> ()
+tearDown() == 
+  skip;
+
+
+end NodeManagerT02

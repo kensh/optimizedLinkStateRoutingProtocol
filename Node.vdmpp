@@ -63,18 +63,4 @@ setMessage(m) == (
 
 
 
--- 送り先NodeIDにMPRかどうかを告げ、メッセージを送る
---public send : Node * IsMPR * Message ==> ()
---send(node, isMPR, message) == (
---	node.receive(isMPR, message);
---);
---
---public receive : IsMPR * Message ==> ()
---receive(isMPR, message) == (
---  if message in set messages then return;
---  messages := messages union {message};
---  if isMPR then
---  	for all i in set getN1() do send(node, isMPR, message);
---);
-
 end Node

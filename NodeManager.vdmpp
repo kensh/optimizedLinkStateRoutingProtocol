@@ -32,7 +32,6 @@ validNode(node) ==
   return
     node.getID() in set getAllNodeIDs();
 
-
 -- Node情報を追加する
 public addNode : Node ==> ()
 addNode(node) ==
@@ -44,7 +43,8 @@ pre
     and
   validNode(node)
     and
-  forall n in set rng nodes & consistentNodes(node, n);
+  forall n in set rng nodes & consistentNodes(node, n)
+post node in set rng nodes;
 
 
 -- Nodeの識別子からNode情報を取得する
@@ -53,44 +53,61 @@ getNode(nodeID) ==
   return nodes(nodeID)
 pre nodeID in set dom nodes;
 
-
--- 登録されているすべてのイベントの識別子を取得する
---public pure getAllNodeIDs : () ==> set of NodeID
---getAllNodeIDs() ==
---  return getAllNodeIDs();
-
+-- N1を取得する
 public pure getN1 : NodeID ==> set of NodeID
 getN1(nodeID) ==
-  return getNeighbor(nodeID);
+  return getNeighbor(nodeID)
+pre nodeID in set dom nodes
+post RESULT subset dom nodes;
 
+-- N2を取得する
 public pure getN2 : NodeID ==> set of NodeID
 getN2(nodeID) == (
     return pseudoN2(nodeID, getN1(nodeID))
-  );
-  
+  )
+pre nodeID in set dom nodes
+post RESULT subset dom nodes;
+
+-- 指定された擬似N1に対するN2を取得する
 public pure pseudoN2 : NodeID * set of NodeID ==> set of NodeID
 pseudoN2(nodeID, n1') == (
     dcl n2' : set of NodeID := {};
     for all nid1 in set n1' do
       n2' := n2' union { nid2 | nid2 in set getN1(nid1) & 
-      	not nid2 in set n1' and
-      	not nid2 = nodeID and
-      	not nodeID in set getN1(nid2)
+      	not nid2 in set n1' 
+      	and not nid2 = nodeID 
+      	and not nodeID in set getN1(nid2)
       	};
     return n2'
-  );
-  
+  )
+pre not nodeID in set n1'
+	and n1' subset dom nodes
+	and nodeID in set dom nodes
+post RESULT subset dom nodes
+	and not nodeID in set RESULT;
+
+-- フィルタに制限されたリンク
 public pure deliverable : NodeID * set of NodeID ==> set of NodeID
 deliverable(nid1, filter) == (
     dcl d : set of NodeID := getN1(nid1);
     d := d inter filter;
     return d
-  ); 
+  )
+pre not nid1 in set filter
+	and filter subset dom nodes
+	and nid1 in set dom nodes
+post not nid1 in set RESULT
+	and RESULT subset filter; 
 
+-- 対称リンクを持っているノードの個数
 public pure getD : NodeID * NodeID ==> int
 getD(nodeID, nid1) == (
     return card　deliverable(nid1, getN2(nodeID))
-  );
+  )
+pre 
+	nodeID in set dom nodes
+	and nid1 in set dom nodes
+post RESULT >= 0;
 
 -- N2に属するあるノードに対して，転送を行うことが可能な唯一のノードか判定
 public pure isRequired : NodeID * NodeID ==> bool
@@ -99,10 +116,12 @@ isRequired(nodeID, nid1) == (
     dcl n2': set of NodeID := pseudoN2(nodeID, getN1(nodeID) \ {nid1});
     
     return card (n2 \ n2') > 0
-	);
+	)
+pre 
+	nodeID in set dom nodes
+	and nid1 in set dom nodes;
 
-
-
+-- MPR集合を取得
 public pure getMPR : NodeID ==> set of NodeID
 getMPR(nodeID) == (
     dcl n1 : set of NodeID := getN1(nodeID);
@@ -117,8 +136,13 @@ getMPR(nodeID) == (
     if card uncovered = 0 then 
       return mpr
     else return choose(nodeID, mpr, n1 \ mpr, uncovered)
-  );
+  )
+pre 
+	nodeID in set dom nodes
+post not nodeID in set RESULT
+	and RESULT subset dom nodes; 
 
+-- 起点:nodeID, MPR, N1内選択肢:choices, 未到達ノード:uncoveredからつぎのMPR所属を決定
 public pure choose : NodeID * set of NodeID * set of NodeID * set of NodeID ==> set of NodeID
 choose(nodeID, mpr, choices, uncovered) == (
 		dcl maxNid :NodeID := maxd(choices, uncovered);
@@ -127,7 +151,16 @@ choose(nodeID, mpr, choices, uncovered) == (
 		if card uncovered' = 0 then 
       return mpr'
     else return choose(nodeID, mpr', choices \ mpr', uncovered')
-);
+)
+pre 
+	nodeID in set dom nodes
+	and mpr subset getN1(nodeID)
+	and choices subset getN1(nodeID)
+	and card(choices inter mpr) = 0
+	and uncovered subset getN2(nodeID)
+post not nodeID in set RESULT
+	and RESULT subset dom nodes
+	and mpr subset RESULT;
 
 public pure maxd : set of NodeID * set of NodeID ==> NodeID
 maxd(choices, uncovered) == (
@@ -141,7 +174,12 @@ maxd(choices, uncovered) == (
 				);
 			);
 		return maxNid
-);
+)
+pre 
+	choices subset dom nodes
+	and uncovered subset dom nodes
+post 
+	RESULT in set dom nodes;
 
 public calculateMPR : () ==> ()
 calculateMPR() == (
@@ -159,20 +197,24 @@ calculateMPR() == (
 public send : NodeID * IsMPR * Message ==> ()
 send(nodeID, isMPR, message) == (
 	dcl currentNode : Node := getNode(nodeID);
-	currentNode.setMessage(message);
+	
 	for all nextID in set currentNode.getN1() do (
 		dcl nextNode : Node := getNode(nextID);
+		
+		if message = nextNode.getMessage() then return;
 		
 		print(currentNode.getID());
 		print(" --> ");
 		print(nextNode.getID());
 		println("");
 		
-		if message = nextNode.getMessage() then return;
+		nextNode.setMessage(message);
 		if isMPR then
 			send(nextID, nextID in set currentNode.getMPR(), message);
 	);
-);
+)
+pre 
+	nodeID in set dom nodes;
 
 public printAll : int * Node ==> ()
 printAll(i, node) == (

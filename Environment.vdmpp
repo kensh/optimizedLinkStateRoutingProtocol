@@ -21,7 +21,10 @@ atomic(
   nodeIDs := nodeIDs union {nodeID}
   neighbors := neighbors munion {nodeID |-> {}}
 )
-pre nodeID not in set nodeIDs;
+pre nodeID not in set nodeIDs
+		and nodeID not in set dom neighbors
+post nodeID in set nodeIDs
+		and nodeID in set dom neighbors;
 
 -- 登録されているすべてのNodeの識別子を取得する
 public pure getAllNodeIDs : () ==> set of NodeID
@@ -37,7 +40,10 @@ pre
     and
     nodeID in set nodeIDs
     and 
-    neighbor subset nodeIDs;
+    neighbor subset nodeIDs
+post 
+		nodeID in set dom neighbors
+		and neighbor subset nodeIDs;
 
 
 
